@@ -1,3 +1,5 @@
+namespace NFTBlockchain.Web.Components.Account;
+
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -6,12 +8,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using NFTBlockchain.Infrastructure.Entities;
 using NFTBlockchain.Web.Components.Account.Pages;
 using NFTBlockchain.Web.Components.Account.Pages.Manage;
-
-namespace Microsoft.AspNetCore.Routing;
-
-using NFTBlockchain.Infrastructure.Entities;
 
 internal static class IdentityComponentsEndpointRouteBuilderExtensions
 {
