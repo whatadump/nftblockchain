@@ -5,6 +5,7 @@ namespace NFTBlockchain.Domain.Cryptography;
 
 using Infrastructure;
 using Infrastructure.Interfaces;
+using Infrastructure.Models;
 
 public class RSAEncryptor : IEncryptor
 {

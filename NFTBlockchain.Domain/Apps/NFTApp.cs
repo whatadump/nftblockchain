@@ -9,7 +9,6 @@ using Models;
 using Rules;
 using Services;
 
-
 public class NFTApp
 {
     private readonly ITypedBlockchain<NFTBlock> _blockchain;
@@ -42,5 +41,7 @@ public class NFTApp
         var result = _blockchain.BuildBlock(nftBlock);
         _blockchain.AcceptBlock(result);
     }
+
+    public bool WorkOfArtExists(string workOfArt) => _blockchain.Any(x => x.Data.Data.WorkOfArt == workOfArt);
 }
 

@@ -5,6 +5,7 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Options;
 
     public static class Bundle
     {
@@ -14,6 +15,12 @@
                 .UseLazyLoadingProxies()
                 .UseNpgsql(configuration.GetConnectionString("DefaultConnection"), 
                     options => options.MigrationsAssembly("NFTBlockchain.Migrations")));
+
+            services.AddSingleton<NFTFileOptions>(_ => new NFTFileOptions
+            {
+                BlockchainFilename = configuration.GetRequiredSection("Blockchain:Filepath").Value,
+                NFTFileDirectory = configuration.GetRequiredSection("Blockchain:NFTStorageFolder").Value
+            });
             
             return services;
         }

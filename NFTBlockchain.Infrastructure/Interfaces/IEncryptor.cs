@@ -1,5 +1,7 @@
 ﻿namespace NFTBlockchain.Infrastructure.Interfaces;
 
+using Models;
+
 public interface IEncryptor
 {
     KeyPair GenerateKeys();

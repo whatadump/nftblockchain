@@ -55,6 +55,8 @@ builder.Services.AddServerSideBlazor()
 
 var app = builder.Build();
 
+Application.ServiceProvider = app.Services;
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

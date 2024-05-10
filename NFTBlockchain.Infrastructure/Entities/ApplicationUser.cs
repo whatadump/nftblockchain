@@ -11,4 +11,8 @@ public class ApplicationUser : IdentityUser
     [Required]
     [DefaultValue("")]
     public string RealName { get; set; }
+    
+    [Column("public_key")]
+    [Required]
+    public string PublicKey { get; set; }
 }

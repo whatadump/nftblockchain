@@ -44,10 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\NFTBlockchain.Domain\NFTBlockchain.Domain.csproj" />
     <ProjectReference Include="..\NFTBlockchain.Infrastructure\NFTBlockchain.Infrastructure.csproj" />
   </ItemGroup>

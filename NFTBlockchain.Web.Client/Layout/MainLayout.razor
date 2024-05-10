@@ -31,13 +31,15 @@
     <MudDrawer @bind-Open="DrawerOpen" Elevation="2">
         <MudDrawerHeader Style="padding-left: 16px">
             <MudStack AlignItems="AlignItems.Center" Row="true" Spacing="3">
-                <MudText Typo="Typo.h6">Dudos Fitness</MudText>
+                <MudText Typo="Typo.h6">NFTBlockchain</MudText>
             </MudStack>
         </MudDrawerHeader>
         <NavMenu/>
     </MudDrawer>
     <MudMainContent Class="px-5">
-        @Body
+        <MudContainer Class="px-5 py-10">
+            @Body
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 
