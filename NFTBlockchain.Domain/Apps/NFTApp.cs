@@ -17,7 +17,7 @@ public class NFTApp
 
     public NFTApp()
     {
-        var hashFunction = new CRC32Hash();
+        var hashFunction = new SHA256Hash();
         var lowLevelBlockchain = new Blockchain(hashFunction);
         var proofOfWorkRule = new ProofOfWorkRule<NFTBlock>();
         _encryptor = new RSAEncryptor();

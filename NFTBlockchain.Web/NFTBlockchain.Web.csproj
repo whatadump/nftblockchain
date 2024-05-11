@@ -27,5 +27,10 @@
     <ProjectReference Include="..\NFTBlockchain.Migrations\NFTBlockchain.Migrations.csproj" />
     <ProjectReference Include="..\NFTBlockchain.Web.Client\NFTBlockchain.Web.Client.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\RememberYourPrivateKey.cshtml" />
+    <_ContentIncludedByDefault Remove="Components\Account\CustomPages\RememberYourPrivateKey.cshtml" />
+  </ItemGroup>
 
 </Project>

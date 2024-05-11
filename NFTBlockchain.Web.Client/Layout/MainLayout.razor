@@ -10,32 +10,36 @@
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())"/>
-        <MudText Typo="Typo.h6">
-            <SectionOutlet SectionName="LAYOUT_TITLE"/>
-        </MudText>
-        <MudSpacer/>
-        <AuthorizeView>
-            <MudMenu>
-                <ActivatorContent>
-                    <MudAvatar Variant="Variant.Outlined">
-                        <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
-                    </MudAvatar>
-                </ActivatorContent>
-                <ChildContent>
-                    <MudMenuItem><MudLink Href="/Account/Logout">Выйти</MudLink></MudMenuItem>
-                </ChildContent>
-            </MudMenu>
-        </AuthorizeView>
+        <MudContainer Class="d-flex flex-row align-items-center">
+            <MudLink Style="color: white!important; text-decoration: none;" Href="/">NFT Blockchain</MudLink>
+            <MudSpacer/>
+            <AuthorizeView>
+                <Authorized>
+                    <MudMenu>
+                        <ActivatorContent>
+                            <MudButton Class="text-white">Аккаунт</MudButton>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem><MudLink Href="/Account/Manage">Аккаунт</MudLink></MudMenuItem>
+                            <MudMenuItem><MudLink Href="/Account/Logout">Выйти</MudLink></MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Href="/Account/Login" Class="text-white">Войти</MudButton>
+                    <MudButton Href="/Account/Register" Class="text-white">Регистрация</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudContainer>
     </MudAppBar>
-    <MudDrawer @bind-Open="DrawerOpen" Elevation="2">
-        <MudDrawerHeader Style="padding-left: 16px">
-            <MudStack AlignItems="AlignItems.Center" Row="true" Spacing="3">
-                <MudText Typo="Typo.h6">NFTBlockchain</MudText>
-            </MudStack>
-        </MudDrawerHeader>
-        <NavMenu/>
-    </MudDrawer>
+    @* <MudDrawer @bind-Open="DrawerOpen" Elevation="2"> *@
+    @*     <MudDrawerHeader Style="padding-left: 16px"> *@
+    @*         <MudStack AlignItems="AlignItems.Center" Row="true" Spacing="3"> *@
+    @*             <MudText Typo="Typo.h6">NFTBlockchain</MudText> *@
+    @*         </MudStack> *@
+    @*     </MudDrawerHeader> *@
+    @*     <NavMenu/> *@
+    @* </MudDrawer> *@
     <MudMainContent Class="px-5">
         <MudContainer Class="px-5 py-10">
             @Body

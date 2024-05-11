@@ -1,0 +1,114 @@
+﻿@page "/AddArtwork"
+@using NFTBlockchain.Infrastructure.Interfaces
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using FluentValidation
+@using Color = MudBlazor.Color
+@using Severity = MudBlazor.Severity
+@attribute [Authorize]
+
+@inject IArtworkService ArtworkService
+@inject UserManager UserManager
+@inject NavigationManager Navigator
+
+
+<MudText Typo="Typo.h4">Добавить произведение искусства</MudText>
+<MudGrid Class="mt-5">
+    <MudItem xs="12" md="4">
+        <MudCard>
+            @if (_errorMessage is not null)
+            {
+                <MudAlert Severity="Severity.Error">Ошибка: @_errorMessage</MudAlert>
+            }
+            <MudCardContent>
+                <MudForm @bind-IsValid="@_isValid" @ref="@_form" Model="@_model">
+                    <MudTextField @bind-Value="@_model.Title" For="@(() => _model.Title)" Label="Название произведения"/>
+                    <MudFileUpload T="IBrowserFile" @bind-Files="@_model.File" For="@(() => _model.File)" Accept=".jpg, .png, .gif, .jpeg, .webp,">
+                        <ButtonTemplate>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                                       for="@context.Id">
+                                Загрузить файл
+                            </MudButton>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                    <MudTextField @bind-Value="@_model.PrivateKey" For="@(() => _model.PrivateKey)" Label="Секретный ключ"/>
+                </MudForm>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="@OnSubmit" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Image" Color="Color.Primary">Зарегистрировать</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    private bool _isValid;
+
+    private string? _errorMessage;
+
+    private ApplicationUser _user;
+
+    private MudForm _form;
+
+    private FormModel _model { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _user = await UserManager.GetAuthenticatedUserAsync();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        await _form.Validate();
+        if (_isValid)
+        {
+            _errorMessage = FileNameValidator.Validate(_model.File).FirstOrDefault();
+            if (_errorMessage is not null)
+                return;
+
+            _errorMessage = await ArtworkService.RegisterArtwork(_model.File.OpenReadStream(), _model.Title, _model.PrivateKey, _user);
+            if (_errorMessage is null)
+            {
+                //TODO: Перейти на страницу NFT
+            }
+        }
+    }
+    
+    
+
+    private class FormModel
+    {
+        [Required(ErrorMessage = "Введите название произведения")]
+        [StringLength(500, MinimumLength = 2)]
+        public string Title { get; set; }
+        
+        [Required(ErrorMessage = "Выберите файл")]
+        public IBrowserFile File { get; set; }
+        
+        [Required(ErrorMessage = "Введите ваш секретный ключ")]
+        [StringLength(5000, MinimumLength = 1)]
+        public string PrivateKey { get; set; }
+    }
+    
+    private static class FileNameValidator
+    {
+        public static readonly string[] AcceptedMimeTypes = ["image/gif", "image/jpeg", "image/png", "image/webp"];
+        
+        public static IEnumerable<string> Validate(IBrowserFile file)
+        {
+            if (!AcceptedMimeTypes.Contains(file.ContentType))
+            {
+                yield return "Неверное расширение файла, допустимые: jpg, png, gif, webp";
+            }
+        }
+    }
+    
+}

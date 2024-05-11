@@ -1,6 +1,7 @@
 ﻿namespace NFTBlockchain.Infrastructure
 {
     using Entities;
+    using Interfaces;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;

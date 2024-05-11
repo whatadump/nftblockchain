@@ -8,6 +8,7 @@ using NFTBlockchain.Web.Components;
 using NFTBlockchain.Web.Components.Account;
 using NFTBlockchain.Web.Services;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.FileProviders;
 using MudBlazor.Services;
 using NFTBlockchain.Domain;
 
@@ -70,7 +71,11 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(app.Configuration.GetRequiredSection("Blockchain:NFTStorageFolder").Value),
+    RequestPath = "/Artworks"
+});
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()

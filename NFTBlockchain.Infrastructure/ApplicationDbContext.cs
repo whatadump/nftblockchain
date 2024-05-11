@@ -9,12 +9,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-
+        
     }
+    
+    public DbSet<Artwork> Artworks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        SeedRolesAndUsers(builder);
+        //SeedRolesAndUsers(builder);
         
         base.OnModelCreating(builder);
     }

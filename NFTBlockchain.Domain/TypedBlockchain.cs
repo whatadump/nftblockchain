@@ -6,7 +6,7 @@ using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Services;
 
-internal class TypedBlockchain<T> : ITypedBlockchain<T>
+internal sealed class TypedBlockchain<T> : ITypedBlockchain<T>
 {
     private readonly IBlockchain _blockchain;
     private readonly IBlockchainBuilderService _builderService;

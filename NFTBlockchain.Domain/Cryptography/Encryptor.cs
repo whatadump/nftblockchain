@@ -7,7 +7,7 @@ using Infrastructure;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 
-public class RSAEncryptor : IEncryptor
+public sealed class RSAEncryptor : IEncryptor
 {
     public KeyPair GenerateKeys()
     {
@@ -33,7 +33,7 @@ public class RSAEncryptor : IEncryptor
         using var provider = GetVerificationProvider(publicKey);
         var signBytes = Convert.FromBase64String(sign);
         var dataBytes = Encoding.UTF8.GetBytes(data);
-        return provider.VerifyData(dataBytes, SHA256.Create(), signBytes);
+        return provider.VerifyData(dataBytes, HashAlgorithmName.SHA256, signBytes);
     }
 
     public string Encrypt(string publicKey, string data)

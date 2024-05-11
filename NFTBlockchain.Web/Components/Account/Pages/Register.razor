@@ -3,10 +3,11 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
+@using System.Web
 @using NFTBlockchain.Infrastructure.Entities
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-
+@using NFTBlockchain.Infrastructure.Interfaces
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -15,14 +16,14 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IEncryptor Encryptor
+@inject IHashFunction HashFunction
 
 <PageTitle>Регистрация</PageTitle>
 
-<h1 class="mt-5">Регистрация</h1>
+<h1 class="mt-5 mb-10">Регистрация</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <StatusMessage Message="@Message" />
+<StatusMessage Message="@Message" />
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
@@ -43,15 +44,6 @@
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
         </EditForm>
-    </div>
-    @* <div class="col-md-6 col-md-offset-2"> *@
-    @*     <section> *@
-    @*         <h3>Use another service to register.</h3> *@
-    @*         <hr /> *@
-    @*         <ExternalLoginPicker /> *@
-    @*     </section> *@
-    @* </div> *@
-</div>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
@@ -70,6 +62,10 @@
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         user.RealName = Input.Email;
+        
+        var keyPair = Encryptor.GenerateKeys();
+        user.PublicKey = keyPair.PublicKey;
+        user.PrivateKeyHash = HashFunction.GetHash(keyPair.PrivateKey);
         
         var emailStore = GetEmailStore();
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -91,16 +87,9 @@
             new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
         await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-        if (UserManager.Options.SignIn.RequireConfirmedAccount)
-        {
-            RedirectManager.RedirectTo(
-                "Account/RegisterConfirmation",
-                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
-        }
-
+        
         await SignInManager.SignInAsync(user, isPersistent: false);
-        RedirectManager.RedirectTo(ReturnUrl);
+        RedirectManager.RedirectTo($"/RememberYourPrivateKey/{Uri.EscapeDataString(keyPair.PrivateKey)}");
     }
 
     private ApplicationUser CreateUser()

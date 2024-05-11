@@ -15,4 +15,8 @@ public class ApplicationUser : IdentityUser
     [Column("public_key")]
     [Required]
     public string PublicKey { get; set; }
+    
+    [Column("private_key_hash")]
+    [Required]
+    public string PrivateKeyHash { get; set; }
 }

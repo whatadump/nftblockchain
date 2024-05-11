@@ -1,9 +1,8 @@
 namespace NFTBlockchain.Domain.Services;
 
-using Infrastructure;
 using Infrastructure.Interfaces;
 
-class ProofOfWorkService<T> : IProofOfWorkService<T> where T : IProofOfWork
+sealed class ProofOfWorkService<T> : IProofOfWorkService<T> where T : IProofOfWork
 {
     private readonly ITypedBlockchain<T> _blockchain;
     private readonly Func<T, T> _nextVariant;
