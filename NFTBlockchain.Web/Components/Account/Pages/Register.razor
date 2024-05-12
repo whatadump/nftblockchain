@@ -3,7 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
-@using System.Web
+@using BlazorDownloadFile
 @using NFTBlockchain.Infrastructure.Entities
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
@@ -18,32 +18,38 @@
 @inject IdentityRedirectManager RedirectManager
 @inject IEncryptor Encryptor
 @inject IHashFunction HashFunction
+@inject IConfiguration Config
 
 <PageTitle>Регистрация</PageTitle>
 
 <h1 class="mt-5 mb-10">Регистрация</h1>
 
 <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="password">Пароль</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="confirm-password">Подтвердите пароль</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
-        </EditForm>
+<EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" role="alert" />
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+        <label for="email">Email</label>
+        <ValidationMessage For="() => Input.Email" class="text-danger" />
+    </div>
+    <div class="form-floating mb-3">
+        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+        <label for="password">Пароль</label>
+        <ValidationMessage For="() => Input.Password" class="text-danger" />
+    </div>
+    <div class="form-floating mb-3">
+        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+        <label for="confirm-password">Подтвердите пароль</label>
+        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+    </div>
+    <button type="submit" class="w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
+</EditForm>
+<script>
+    window.customElementClick = () => document.getElementById("invisibleDownloadLink").click();
+</script>
+
+    <a id="invisibleDownloadLink" href="@KeyPath" download="true">Невидимая ссылка</a>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
@@ -53,6 +59,8 @@
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
+    
+    private string KeyPath { get; set; }
 
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
@@ -89,7 +97,12 @@
         await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
         
         await SignInManager.SignInAsync(user, isPersistent: false);
-        RedirectManager.RedirectTo($"/RememberYourPrivateKey/{Uri.EscapeDataString(keyPair.PrivateKey)}");
+
+        var folder = Config.GetRequiredSection("Blockchain:PrivateKeysTemp").Value;
+        var fullPath = Path.Combine(folder, "nft-secret-key.pem");
+        await File.WriteAllTextAsync(fullPath, keyPair.PrivateKey);
+        
+        RedirectManager.RedirectTo("/DownloadFile");
     }
 
     private ApplicationUser CreateUser()

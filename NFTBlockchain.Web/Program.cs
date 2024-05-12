@@ -1,3 +1,4 @@
+using BlazorDownloadFile;
 using NFTBlockchain.Infrastructure;
 using NFTBlockchain.Infrastructure.Entities;
 using NFTBlockchain.Web.Client;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddBlazorDownloadFile();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -71,10 +73,17 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(app.Configuration.GetRequiredSection("Blockchain:NFTStorageFolder").Value),
     RequestPath = "/Artworks"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(app.Configuration.GetRequiredSection("Blockchain:PrivateKeysTemp").Value),
+    RequestPath = "/PrivateKeysTemp",
+    ServeUnknownFileTypes = true
 });
 app.UseAntiforgery();
 

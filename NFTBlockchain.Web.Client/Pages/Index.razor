@@ -1,6 +1,47 @@
 ﻿@page "/"
-<h3>Index</h3>
+@using NFTBlockchain.Infrastructure.DTO
+@using NFTBlockchain.Infrastructure.Interfaces
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+@inject IArtworkService ArtworkService
+
+<h3>Произведения искусства пользователей</h3>
+<MudToolBar>
+    <MudSpacer/>
+    <MudButton Size="Size.Large" Href="/AddArtwork" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined" Color="Color.Primary">Добавить произведение искусства</MudButton>
+</MudToolBar>
+
+@if (_artworks is {Count: >0})
+{
+    <MudGrid Class="mt-6">
+        @foreach (var work in _artworks)
+        {
+            <MudItem xs="6" md="4" lg="3">
+                <div style="width: 100%; aspect-ratio: 1; position: relative;">
+                    <a href="@($"/Artwork/{work.Block.Data.Data.WorkOfArt}")">
+                        <MudImage Style="width: 100%; aspect-ratio: 1" ObjectFit="ObjectFit.Cover" Src="@($"/Artworks/{work.Block.Data.Data.WorkOfArt}.png")"/>
+                    </a>
+                    <div style="background: rgba(0, 0, 0, .5); position: absolute; bottom: 0; left: 0; right: 0; padding: 15px 20px; display: flex; flex-direction: column; align-items: start; row-gap: 7px">
+                        <MudText Style="color: white; z-index: 100; overflow:hidden; white-space:nowrap; text-overflow: ellipsis; max-width: 100%" Typo="Typo.body2">@(work.Title)</MudText>
+                        <MudChip Variant="Variant.Outlined" Size="Size.Small" Style="color: white; margin: 0;">@work.Owner.RealName</MudChip>
+                    </div>
+                </div>
+
+            </MudItem>
+        }
+    </MudGrid>
+}
 
 @code {
-    
+    private IReadOnlyCollection<ArtworkDTO> _artworks;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _artworks = await ArtworkService.GetAllArtworks();
+            StateHasChanged();
+        }
+    }
+
 }

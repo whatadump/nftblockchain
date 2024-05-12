@@ -2,7 +2,6 @@
 
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
-using Models;
 
 class OwningRule : IRule<NFTBlock>
 {

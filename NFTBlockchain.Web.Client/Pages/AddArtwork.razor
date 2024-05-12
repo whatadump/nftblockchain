@@ -2,7 +2,6 @@
 @using NFTBlockchain.Infrastructure.Interfaces
 @using Microsoft.AspNetCore.Authorization
 @using System.ComponentModel.DataAnnotations
-@using FluentValidation
 @using Color = MudBlazor.Color
 @using Severity = MudBlazor.Severity
 @attribute [Authorize]
@@ -22,19 +21,38 @@
             }
             <MudCardContent>
                 <MudForm @bind-IsValid="@_isValid" @ref="@_form" Model="@_model">
-                    <MudTextField @bind-Value="@_model.Title" For="@(() => _model.Title)" Label="Название произведения"/>
-                    <MudFileUpload T="IBrowserFile" @bind-Files="@_model.File" For="@(() => _model.File)" Accept=".jpg, .png, .gif, .jpeg, .webp,">
+                    <MudTextField Variant="Variant.Outlined" @bind-Value="@_model.Title" For="@(() => _model.Title)" Label="Название произведения"/>
+                    <MudFileUpload Class="mt-5" T="IBrowserFile" @bind-Files="@_model.File" For="@(() => _model.File)" Accept=".jpg, .png, .gif, .jpeg, .webp,">
                         <ButtonTemplate>
                             <MudButton HtmlTag="label"
                                        Variant="Variant.Filled"
                                        Color="Color.Primary"
                                        StartIcon="@Icons.Material.Filled.CloudUpload"
                                        for="@context.Id">
-                                Загрузить файл
+                                Выберите файл
                             </MudButton>
                         </ButtonTemplate>
                     </MudFileUpload>
-                    <MudTextField @bind-Value="@_model.PrivateKey" For="@(() => _model.PrivateKey)" Label="Секретный ключ"/>
+                    @if (_model.File is not null)
+                    {
+                        <MudText Typo="Typo.body2">Выбран файл @_model.File.Name</MudText>
+                    }
+                    
+                    <MudFileUpload Class="mt-5" T="IBrowserFile" @bind-Files="@_model.PrivateKey" For="@(() => _model.PrivateKey)" Accept=".pem">
+                        <ButtonTemplate>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                                       for="@context.Id">
+                                Выберите секретный ключ
+                            </MudButton>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                    @if (_model.PrivateKey is not null)
+                    {
+                        <MudText Typo="Typo.body2">Выбран файл ключа @_model.PrivateKey.Name</MudText>
+                    }
                 </MudForm>
             </MudCardContent>
             <MudCardActions>
@@ -74,28 +92,32 @@
             if (_errorMessage is not null)
                 return;
 
-            _errorMessage = await ArtworkService.RegisterArtwork(_model.File.OpenReadStream(), _model.Title, _model.PrivateKey, _user);
+            _errorMessage = PrivateKeyValidator.Validate(_model.PrivateKey).FirstOrDefault();
+            if (_errorMessage is not null)
+                return;
+
+            var reader = new StreamReader(_model.PrivateKey.OpenReadStream());
+            var privateKey = await reader.ReadToEndAsync();
+            
+            (_errorMessage, var hash) = await ArtworkService.RegisterArtwork(_model.File.OpenReadStream(), _model.Title, privateKey, _user);
             if (_errorMessage is null)
             {
-                //TODO: Перейти на страницу NFT
+                Navigator.NavigateTo($"/Artwork/{hash}");
             }
         }
     }
     
-    
-
     private class FormModel
     {
         [Required(ErrorMessage = "Введите название произведения")]
         [StringLength(500, MinimumLength = 2)]
         public string Title { get; set; }
         
-        [Required(ErrorMessage = "Выберите файл")]
+        [Required(ErrorMessage = "Выберите файл произведения")]
         public IBrowserFile File { get; set; }
         
-        [Required(ErrorMessage = "Введите ваш секретный ключ")]
-        [StringLength(5000, MinimumLength = 1)]
-        public string PrivateKey { get; set; }
+        [Required(ErrorMessage = "Выберите ваш секретный ключ")]
+        public IBrowserFile PrivateKey { get; set; }
     }
     
     private static class FileNameValidator
@@ -107,6 +129,17 @@
             if (!AcceptedMimeTypes.Contains(file.ContentType))
             {
                 yield return "Неверное расширение файла, допустимые: jpg, png, gif, webp";
+            }
+        }
+    }
+    
+    private static class PrivateKeyValidator
+    {
+        public static IEnumerable<string> Validate(IBrowserFile file)
+        {
+            if (!file.Name.EndsWith(".pem"))
+            {
+                yield return "Неверное расширение файла, допустимые: .pem";
             }
         }
     }

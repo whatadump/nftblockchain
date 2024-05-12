@@ -1,0 +1,57 @@
+﻿@page "/Artwork/{ArtworkHash?}"
+@using NFTBlockchain.Infrastructure.Interfaces
+@using NFTBlockchain.Infrastructure.DTO
+@inject IArtworkService ArtworkService
+@inject NavigationManager Navigator
+@inject IHashFunction HashFunction
+
+<MudGrid>
+    <MudItem xs="12" md="3">
+        <MudPaper Elevation="10">
+            <MudImage ObjectFit="ObjectFit.Cover" Style="width: 100%; aspect-ratio: 1" Src="@($"/Artworks/{ArtworkHash}.png")"></MudImage>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="9">
+        <MudCard>
+            <MudCardContent>
+                <h3 style="overflow-wrap: break-word;">@(_artworkDto?.Title)</h3>
+                <MudChip Class="mt-4" Variant="Variant.Outlined">@(_artworkDto?.Owner.RealName)</MudChip>
+                <MudExpansionPanel Text="Данные блока">
+                    <MudText Class="d-block" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Nonce: </b> @(_artworkDto?.Block.Data.Nonce)</MudText>
+                    <MudText Class="d-block mt-2" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Подпись блока: </b>@(_artworkDto?.Block.Data.Sign)</MudText>
+                    <MudText Class="d-block mt-2" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Хэш блока:</b> @(_artworkDto?.Block.Hash)</MudText>
+                    <br/>
+                    <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Отпечаток произведения искусства:</b> @(_artworkDto?.Block.Data.Data.WorkOfArt)</MudText>
+                    <br/>
+                    <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Текущий владелец:</b> @(HashFunction.GetHash(_artworkDto?.Block.Data.Data.To ?? string.Empty))</MudText>
+                    <br/><br/>
+                    <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Публичный ключ владельца:</b> @(_artworkDto?.Block.Data.Data.To)</MudText>
+                </MudExpansionPanel>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    [Parameter]
+    public string? ArtworkHash { get; set; }
+    
+    private ArtworkDTO? _artworkDto { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _artworkDto = await ArtworkService.GetArtworkByHash(ArtworkHash);
+            StateHasChanged();
+
+            if (_artworkDto is null)
+            {
+                Navigator.NavigateTo("/404");
+            }
+        }
+    }
+
+}

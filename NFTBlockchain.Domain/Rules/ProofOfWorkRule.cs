@@ -8,7 +8,7 @@ class ProofOfWorkRule<T> : IProofOfWorkRule<T> where T : IProofOfWork
     public void Execute(IEnumerable<Block<T>> builtBlocks, Block<T> newData)
     {
         var height = builtBlocks.Count();
-        if (Execute(height, newData.Hash))
+        if (!Execute(height, newData.Hash))
             throw new ApplicationException("Proof of work is incorrect for this block.");
     }
 

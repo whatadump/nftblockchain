@@ -1,15 +1,15 @@
 ﻿namespace NFTBlockchain.Domain.Apps;
 
+using System.Collections;
 using System.Text.Json;
 using Cryptography;
 using Infrastructure;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
-using Models;
 using Rules;
 using Services;
 
-public class NFTApp
+public class NFTApp : IEnumerable<Block<NFTBlock>>
 {
     private readonly ITypedBlockchain<NFTBlock> _blockchain;
     private readonly IEncryptor _encryptor;
@@ -43,5 +43,7 @@ public class NFTApp
     }
 
     public bool WorkOfArtExists(string workOfArt) => _blockchain.Any(x => x.Data.Data.WorkOfArt == workOfArt);
+    public IEnumerator<Block<NFTBlock>> GetEnumerator() => _blockchain.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

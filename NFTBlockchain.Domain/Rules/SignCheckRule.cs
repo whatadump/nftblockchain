@@ -16,7 +16,7 @@ class SignCheckRule<TBlockData, TSignedData> : IRule<TBlockData> where TBlockDat
     public void Execute(IEnumerable<Block<TBlockData>> builtBlocks, Block<TBlockData> newData)
     {
         var signed = newData.Data;
-        var dataThatShouldBeSigned = JsonSerializer.Serialize(newData.Data);
+        var dataThatShouldBeSigned = JsonSerializer.Serialize(newData.Data.Data);
         if (!_encryptor.VerifySign(signed.PublicKey, dataThatShouldBeSigned, signed.Sign))
             throw new ApplicationException("Неверная подпись блока.");
     }

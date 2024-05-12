@@ -1,0 +1,27 @@
+﻿@page "/DownloadFile"
+@inject NavigationManager Navigation
+@inject IJSRuntime Runtime
+
+<script>
+    window.downloadKey = () => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = "/PrivateKeysTemp/nft-secret-key.pem";
+        anchorElement.download = "nft-secret-key.pem" ?? '';
+        anchorElement.click();
+        anchorElement.remove();    
+    }
+</script>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Runtime.InvokeVoidAsync("downloadKey");
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            Navigation.NavigateTo("/");
+            
+        }
+    }
+
+}

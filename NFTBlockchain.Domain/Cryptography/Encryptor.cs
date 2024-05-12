@@ -12,12 +12,16 @@ public sealed class RSAEncryptor : IEncryptor
     public KeyPair GenerateKeys()
     {
         using var rsa = new RSACryptoServiceProvider();
-        var @private = rsa.ExportParameters(true);
-        var @public = rsa.ExportParameters(false);
-        var publicKey = Convert.ToBase64String(GetArray(@public));
-        var privateKey = Convert.ToBase64String(GetArray(@private));
 
-        return new KeyPair(publicKey, privateKey);
+        // var @private = rsa.ExportParameters(true);
+        // var @public = rsa.ExportParameters(false);
+        //
+        // var publicKey = Convert.ToBase64String();
+        // var privateKey = Convert.ToBase64String(GetArray(@private));
+        var publicKey = rsa.ExportRSAPublicKey();
+        var privateKey = rsa.ExportRSAPrivateKey();
+        
+        return new KeyPair(Convert.ToBase64String(publicKey), Convert.ToBase64String(privateKey));
     }
 
     public string Sign(string data, string privateKey)
@@ -33,8 +37,8 @@ public sealed class RSAEncryptor : IEncryptor
         using var provider = GetVerificationProvider(publicKey);
         var signBytes = Convert.FromBase64String(sign);
         var dataBytes = Encoding.UTF8.GetBytes(data);
-        return provider.VerifyData(dataBytes, HashAlgorithmName.SHA256, signBytes);
-    }
+        return provider.VerifyData(dataBytes, SHA256.Create(), signBytes);
+    }   
 
     public string Encrypt(string publicKey, string data)
     {
@@ -53,17 +57,23 @@ public sealed class RSAEncryptor : IEncryptor
 
     private static RSACryptoServiceProvider GetVerificationProvider(string publicKey)
     {
-        var parameter = GetPublicKey(Convert.FromBase64String(publicKey));
         var provider = new RSACryptoServiceProvider();
-        provider.ImportParameters(parameter);
+        var key = Convert.FromBase64String(publicKey);
+        provider.ImportRSAPublicKey(key, out _);
+        
+        // var parameter = GetPublicKey(Convert.FromBase64String(publicKey));
+        // provider.ImportParameters(parameter);
         return provider;
     }
 
     private static RSACryptoServiceProvider GetCryptoProvider(string privateKey)
     {
-        var privateParameter = GetPrivateKey(Convert.FromBase64String(privateKey));
         var provider = new RSACryptoServiceProvider();
-        provider.ImportParameters(privateParameter);
+        var key = Convert.FromBase64String(privateKey);
+        provider.ImportRSAPrivateKey(key, out _);
+        
+        // var privateParameter = GetPrivateKey(Convert.FromBase64String(privateKey));
+        // provider.ImportParameters(privateParameter);
 
         return provider;
     }

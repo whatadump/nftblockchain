@@ -47,8 +47,8 @@ class Blockchain : IBlockchain
     {
         try
         {
-            var fileStream = File.OpenRead(filename);
-            _blocks = JsonSerializer.Deserialize<List<BlockchainBlock>>(fileStream) ?? throw new Exception();
+            var blockchainContents = File.ReadAllText(filename);
+            _blocks = JsonSerializer.Deserialize<List<BlockchainBlock>>(blockchainContents) ?? throw new Exception();
         }
         catch (Exception e)
         {
@@ -58,8 +58,8 @@ class Blockchain : IBlockchain
 
     public void WriteToFile(string filename)
     {
-        var stream = File.OpenWrite(filename);
-        JsonSerializer.Serialize(stream, _blocks);
+        var blockchainJson = JsonSerializer.Serialize(_blocks);
+        File.WriteAllText(filename, blockchainJson);
     }
 
     public IEnumerator<BlockchainBlock> GetEnumerator() => _blocks.GetEnumerator();
