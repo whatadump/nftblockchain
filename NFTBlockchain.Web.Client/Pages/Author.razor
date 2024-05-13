@@ -1,17 +1,24 @@
-﻿@page "/"
+﻿@page "/Author/{AuthorId}"
 @using NFTBlockchain.Infrastructure.DTO
 @using NFTBlockchain.Infrastructure.Interfaces
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
 @inject IArtworkService ArtworkService
+@inject UserManager UserManager
+@inject NavigationManager Navigator
+@inject IHashFunction HashFunction
 
-<h3>Произведения искусства пользователей</h3>
-<MudToolBar>
+
+
+<MudToolBar Class="row-gap-4 p-0" WrapContent="true">
+    <h3>Автор @(_author?.RealName)</h3>
     <MudSpacer/>
-    <MudButton Size="Size.Large" Href="/AddArtwork" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined" Color="Color.Primary">Добавить произведение искусства</MudButton>
+    @if (RequestedAuthorIsCurrentUser)
+    {
+        <MudButton Size="Size.Large" Href="/AddArtwork" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined" Color="Color.Primary">Добавить произведение искусства</MudButton>
+    }
 </MudToolBar>
-
-@if (_artworks is {Count: >0})
+@if (_artworks is { Count: > 0 })
 {
     <MudGrid Class="mt-6">
         @foreach (var work in _artworks)
@@ -23,7 +30,6 @@
                     </a>
                     <div style="background: rgba(0, 0, 0, .5); position: absolute; bottom: 0; left: 0; right: 0; padding: 15px 20px; display: flex; flex-direction: column; align-items: start; row-gap: 7px">
                         <MudText Style="color: white; z-index: 100; overflow:hidden; white-space:nowrap; text-overflow: ellipsis; max-width: 100%" Typo="Typo.body2">@(work.Title)</MudText>
-                        <MudChip Variant="Variant.Outlined" Size="Size.Small" Style="color: white; margin: 0;">@work.Owner.RealName</MudChip>
                     </div>
                 </div>
 
@@ -31,15 +37,35 @@
         }
     </MudGrid>
 }
+else
+{
+    <MudText Typo="Typo.h5">Автор еще не добавил свои произведения искусства</MudText>
+}
 
 @code {
-    private IReadOnlyCollection<ArtworkDTO> _artworks;
+    
+    [Parameter]
+    public string AuthorId { get; set; }
+
+    private IReadOnlyCollection<ArtworkDTO>? _artworks;
+
+    private ApplicationUser? _author;
+
+    private bool RequestedAuthorIsCurrentUser;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _artworks = await ArtworkService.GetAllArtworks();
+            _author = await ArtworkService.GetAuthorByPublicKeyHash(AuthorId);
+            _artworks = await ArtworkService.GetArtworksByAuthor(AuthorId);
+            var user = await UserManager.GetAuthenticatedUserAsync();
+            RequestedAuthorIsCurrentUser = HashFunction.GetHash(user.PublicKey) == AuthorId;
+            
+            if (_author is null || _artworks is null)
+            {
+                Navigator.NavigateTo("/404", true);
+            }
             StateHasChanged();
         }
     }

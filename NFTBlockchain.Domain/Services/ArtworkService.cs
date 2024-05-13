@@ -154,4 +154,35 @@ public class ArtworkService : IArtworkService
             return e.Message;
         }
     }
+
+    public async Task<IReadOnlyCollection<ArtworkDTO>?> GetArtworksByAuthor(string authorId)
+    {
+        if (string.IsNullOrEmpty(authorId))
+        {
+            return null;
+        }
+
+        var authors = (await _context.Users.ToArrayAsync())
+            .ToDictionary(x => _hashFunction.GetHash(x.PublicKey), x => x);
+
+        if (!authors.TryGetValue(authorId, out var author))
+        {
+            return null;
+        }
+
+        return (await GetAllArtworks()).Where(x => x.Owner?.Id == author.Id).ToArray();
+    }
+
+    public async Task<ApplicationUser?> GetAuthorByPublicKeyHash(string authorPublicKey)
+    {
+        if (string.IsNullOrEmpty(authorPublicKey))
+        {
+            return null;
+        }
+
+        var authors = (await _context.Users.ToArrayAsync())
+            .ToDictionary(x => _hashFunction.GetHash(x.PublicKey), x => x);
+
+        return authors.GetValueOrDefault(authorPublicKey);
+    }
 }

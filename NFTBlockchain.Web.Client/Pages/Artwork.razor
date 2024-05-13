@@ -19,7 +19,9 @@
         <MudCard>
             <MudCardContent>
                 <h3 style="overflow-wrap: break-word;">@(_artworkDto?.Title)</h3>
-                <MudChip Class="mt-4" Variant="Variant.Outlined">@(_artworkDto?.Owner.RealName)</MudChip>
+                <MudLink Href="@($"/Author/{HashFunction.GetHash(_artworkDto?.Owner.PublicKey ?? string.Empty)}")">
+                    <MudChip Class="mt-4" Variant="Variant.Outlined">@(_artworkDto?.Owner.RealName)</MudChip>
+                </MudLink>
                 <MudExpansionPanel Text="Данные блока">
                     <MudText Class="d-block" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Nonce: </b> @(_artworkDto?.Block.Data.Nonce)</MudText>
                     <MudText Class="d-block mt-2" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Подпись блока: </b>@(_artworkDto?.Block.Data.Sign)</MudText>
@@ -82,7 +84,7 @@
 
             if (_artworkDto is null)
             {
-                Navigator.NavigateTo("/404");
+                Navigator.NavigateTo("/404", true);
             }
         }
     }

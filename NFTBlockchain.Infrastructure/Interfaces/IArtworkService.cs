@@ -12,4 +12,8 @@ public interface IArtworkService
     public Task<IReadOnlyCollection<ArtworkDTO>> GetAllArtworks();
 
     public Task<string?> TransferArtwork(string privateKey, ApplicationUser? sender, ApplicationUser? recipient, string artwork);
+
+    public Task<IReadOnlyCollection<ArtworkDTO>?> GetArtworksByAuthor(string authorId);
+
+    public Task<ApplicationUser?> GetAuthorByPublicKeyHash(string authorPublicKey);
 }
