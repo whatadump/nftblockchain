@@ -20,7 +20,7 @@ class OwningRule : IRule<NFTBlock>
             {
                 if (b.Data.Data.WorkOfArt == newData.Data.Data.WorkOfArt)
                 {
-                    if (b.Data.Data.To == block.Data.To)
+                    if (b.Data.Data.To == block.Data.From)
                         return;
                     throw new ApplicationException(
                         "Вы пытаетесь передать произведение искусства которое вам не пренадлежит.");

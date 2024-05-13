@@ -126,4 +126,32 @@ public class ArtworkService : IArtworkService
             })
             .ToArray();
     }
+
+    public async Task<string?> TransferArtwork(string privateKey, ApplicationUser? sender, ApplicationUser? recipient, string artwork)
+    {
+        if (recipient is null)
+        {
+            return "Неверный получатель";
+        }
+
+        if (sender is null)
+        {
+            return "Неверный отправитель";
+        }
+
+        if (_hashFunction.GetHash(privateKey) != sender.PrivateKeyHash)
+        {
+            return "Неверный секретный ключ";
+        }
+
+        try
+        {
+            _app.TransferWorkOfArt(new KeyPair(sender.PublicKey, privateKey), recipient.PublicKey, artwork);
+            return null;
+        }
+        catch (ApplicationException e)
+        {
+            return e.Message;
+        }
+    }
 }

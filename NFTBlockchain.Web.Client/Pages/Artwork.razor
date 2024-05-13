@@ -1,9 +1,13 @@
 ﻿@page "/Artwork/{ArtworkHash?}"
 @using NFTBlockchain.Infrastructure.Interfaces
 @using NFTBlockchain.Infrastructure.DTO
+@using NFTBlockchain.Web.Client.Modals
+@using Color = MudBlazor.Color
 @inject IArtworkService ArtworkService
 @inject NavigationManager Navigator
 @inject IHashFunction HashFunction
+@inject UserManager UserManager
+@inject IDialogService Dialog
 
 <MudGrid>
     <MudItem xs="12" md="3">
@@ -28,6 +32,12 @@
                     <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Публичный ключ владельца:</b> @(_artworkDto?.Block.Data.Data.To)</MudText>
                 </MudExpansionPanel>
             </MudCardContent>
+            <MudCardActions>
+                @if (_artworkDto?.Owner?.Id == _user?.Id)
+                {
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Image" Color="Color.Primary" OnClick="@OpenTransferModal">Передать произведение искусства</MudButton>
+                }
+            </MudCardActions>
         </MudCard>
     </MudItem>
 </MudGrid>
@@ -40,12 +50,35 @@
     
     private ArtworkDTO? _artworkDto { get; set; }
 
+    private ApplicationUser _user;
+
+    private async Task OpenTransferModal()
+    {
+        var parameters = new DialogParameters<TransferArtworkModal>
+        {
+            { x => x.Artwork, _artworkDto },
+            { x => x.OnSuccessfulTransfer, UpdateData }
+        };
+        var options = new DialogOptions()
+        {
+            CloseOnEscapeKey = true
+        };
+
+        var result = await (await Dialog.ShowAsync<TransferArtworkModal>("Передача произведения искусства", parameters, options)).Result;
+    }
+
+    private async Task UpdateData()
+    {
+        _artworkDto = await ArtworkService.GetArtworkByHash(ArtworkHash);
+        _user = await UserManager.GetAuthenticatedUserAsync();
+        StateHasChanged();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _artworkDto = await ArtworkService.GetArtworkByHash(ArtworkHash);
-            StateHasChanged();
+            await UpdateData();
 
             if (_artworkDto is null)
             {

@@ -2,6 +2,7 @@
 @inherits LayoutComponentBase
 
 @inject NavigationManager Navigation
+@inject UserManager UserManager
 
 <MudThemingProvider Theme="Theme" IsDarkMode="false" />
 <MudPopoverProvider />
@@ -11,7 +12,7 @@
 <MudLayout>
     <MudAppBar Elevation="0">
         <MudContainer Class="d-flex flex-row align-items-center">
-            <MudLink Style="color: white!important; text-decoration: none;" Href="/">NFT Blockchain</MudLink>
+            <MudLink Typo="Typo.h6" Style="color: white!important; text-decoration: none;" Href="/">NFT Blockchain</MudLink>
             <MudSpacer/>
             <AuthorizeView>
                 <Authorized>
@@ -20,8 +21,8 @@
                             <MudButton Class="text-white">Аккаунт</MudButton>
                         </ActivatorContent>
                         <ChildContent>
-                            <MudMenuItem><MudLink Href="/Account/Manage">Аккаунт</MudLink></MudMenuItem>
-                            <MudMenuItem><MudLink Href="/Account/Logout">Выйти</MudLink></MudMenuItem>
+                            <MudLink Href="/Account/Manage"><MudMenuItem>Аккаунт</MudMenuItem></MudLink>
+                            <MudLink Href="/Account/Logout"><MudMenuItem>Выйти</MudMenuItem></MudLink>
                         </ChildContent>
                     </MudMenu>
                 </Authorized>
@@ -32,14 +33,6 @@
             </AuthorizeView>
         </MudContainer>
     </MudAppBar>
-    @* <MudDrawer @bind-Open="DrawerOpen" Elevation="2"> *@
-    @*     <MudDrawerHeader Style="padding-left: 16px"> *@
-    @*         <MudStack AlignItems="AlignItems.Center" Row="true" Spacing="3"> *@
-    @*             <MudText Typo="Typo.h6">NFTBlockchain</MudText> *@
-    @*         </MudStack> *@
-    @*     </MudDrawerHeader> *@
-    @*     <NavMenu/> *@
-    @* </MudDrawer> *@
     <MudMainContent Class="px-5">
         <MudContainer Class="px-5 py-10">
             @Body
@@ -48,9 +41,7 @@
 </MudLayout>
 
 @code {
-    private bool DrawerOpen = true;
-    private void DrawerToggle() => DrawerOpen = !DrawerOpen;
-    
+
     public static readonly MudTheme Theme = new()
     {
         Typography = new Typography

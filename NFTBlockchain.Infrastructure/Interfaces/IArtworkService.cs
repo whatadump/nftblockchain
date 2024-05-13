@@ -10,4 +10,6 @@ public interface IArtworkService
     public Task<ArtworkDTO?> GetArtworkByHash(string hash);
 
     public Task<IReadOnlyCollection<ArtworkDTO>> GetAllArtworks();
+
+    public Task<string?> TransferArtwork(string privateKey, ApplicationUser? sender, ApplicationUser? recipient, string artwork);
 }
