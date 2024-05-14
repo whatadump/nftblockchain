@@ -7,6 +7,7 @@ using Infrastructure.DTO;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
+using Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
@@ -18,13 +19,15 @@ public class ArtworkService : IArtworkService
     private readonly ApplicationDbContext _context;
     private readonly IConfiguration _config;
     private readonly IHashFunction _hashFunction;
+    private readonly NFTFileOptions _options;
 
-    public ArtworkService(NFTApp app, ApplicationDbContext context, IHashFunction hashFunction, IConfiguration config)
+    public ArtworkService(NFTApp app, ApplicationDbContext context, IHashFunction hashFunction, IConfiguration config, NFTFileOptions options)
     {
         _app = app;
         _context = context;
         _hashFunction = hashFunction;
         _config = config;
+        _options = options;
     }
     
     public async Task<ValueTuple<string?, string>> RegisterArtwork(Stream filestream, string title, string privateKey, ApplicationUser user)
@@ -184,5 +187,15 @@ public class ArtworkService : IArtworkService
             .ToDictionary(x => _hashFunction.GetHash(x.PublicKey), x => x);
 
         return authors.GetValueOrDefault(authorPublicKey);
+    }
+
+    public async Task<bool> IsUserArbiter(ApplicationUser? user)
+    {
+        if (user is null)
+        {
+            return false;
+        }
+
+        return user.PublicKey == _options.ArbiterPublicKey;
     }
 }

@@ -1,0 +1,131 @@
+﻿@using NFTBlockchain.Infrastructure.DTO
+@using NFTBlockchain.Infrastructure
+@using Microsoft.EntityFrameworkCore
+@using Color = MudBlazor.Color
+@using System.ComponentModel.DataAnnotations
+@using NFTBlockchain.Infrastructure.Interfaces
+
+
+@inject ApplicationDbContext Context
+@inject IArtworkService ArtworkService
+@inject UserManager UserManager
+
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.body1">Вы собираетесь форсированно передать произведение искусства другому владельцу.</MudText>
+        <MudText Typo="Typo.body2" Class="mt-2">Данное действие запишется в блокчейн</MudText>
+        @if (_errorMessage is not null)
+        {
+            <MudAlert Severity="Severity.Error">Ошибка: @_errorMessage</MudAlert>
+        }
+        <MudForm @bind-IsValid="@_isValid" @ref="@_form" Model="@_model">
+            @if (_users is not null)
+            {
+                <MudSelect Label="Получатель" T="ApplicationUser" @bind-Value="@_model.Recipient" For="@(() => _model.Recipient)" ToStringFunc="@((user) => user?.RealName)">
+                    @foreach (var user in _users)
+                    {
+                        <MudSelectItem Value="@user"/>
+                    }
+                </MudSelect>
+            }
+            <MudFileUpload Class="mt-5" T="IBrowserFile" @bind-Files="@_model.PrivateKey" For="@(() => _model.PrivateKey)" Accept=".pem">
+                <ButtonTemplate>
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Text"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudUpload"
+                               for="@context.Id">
+                        Выберите секретный ключ
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
+            @if (_model.PrivateKey is not null)
+            {
+                <MudText Typo="Typo.body2">Выбран файл ключа @_model.PrivateKey.Name</MudText>
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@Submit" Color="Color.Error" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined">Передать</MudButton>
+        <MudButton OnClick="@(() => Instance.Cancel())" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary" >Отмена</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [Parameter]
+    public ArtworkDTO Artwork { get; set; }
+    
+    [Parameter]
+    public Func<Task>? OnSuccessfulTransfer { get; set; }
+    
+    [CascadingParameter]
+    public MudDialogInstance Instance { get; set; }
+
+    private string? _errorMessage;
+
+    private bool _isValid;
+
+    private MudForm _form;
+
+    private readonly FormModel _model = new();
+
+    private IReadOnlyCollection<ApplicationUser> _users;
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (_isValid)
+        {
+            _errorMessage = PrivateKeyValidator.Validate(_model.PrivateKey).FirstOrDefault();
+            if (_errorMessage is not null)
+                return;
+
+            await using var privateKeyStream = _model.PrivateKey.OpenReadStream();
+            var reader = new StreamReader(privateKeyStream);
+            var privateKey = await reader.ReadToEndAsync();
+            var user = await UserManager.GetAuthenticatedUserAsync();
+
+            _errorMessage = await ArtworkService.TransferArtwork(privateKey, user, _model.Recipient, Artwork.Block.Data.Data.WorkOfArt);
+
+            if (_errorMessage is null)
+            {
+                if (OnSuccessfulTransfer is not null)
+                {
+                    await OnSuccessfulTransfer();
+                }
+                Instance.Close();
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var ownerId = Artwork.Owner?.Id;
+            _users = await Context.Users.ToArrayAsync();
+            StateHasChanged();
+        }
+    }
+
+    private class FormModel
+    {
+        [Required(ErrorMessage = "Выберите приватный ключ")]
+        public IBrowserFile PrivateKey { get; set; }
+        
+        [Required(ErrorMessage = "Выберите получателя")]
+        public ApplicationUser Recipient { get; set; }
+    }
+    
+    private static class PrivateKeyValidator
+    {
+        public static IEnumerable<string> Validate(IBrowserFile file)
+        {
+            if (!file.Name.EndsWith(".pem"))
+            {
+                yield return "Неверное расширение файла, допустимые: .pem";
+            }
+        }
+    }
+
+}

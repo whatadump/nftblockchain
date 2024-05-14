@@ -20,7 +20,8 @@
             services.AddSingleton<NFTFileOptions>(_ => new NFTFileOptions
             {
                 BlockchainFilename = configuration.GetRequiredSection("Blockchain:Filepath").Value,
-                NFTFileDirectory = configuration.GetRequiredSection("Blockchain:NFTStorageFolder").Value
+                NFTFileDirectory = configuration.GetRequiredSection("Blockchain:NFTStorageFolder").Value,
+                ArbiterPublicKey = configuration.GetRequiredSection("Blockchain:ArbiterPublicKey").Value
             });
             
             return services;

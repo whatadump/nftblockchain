@@ -34,10 +34,14 @@
                     <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Публичный ключ владельца:</b> @(_artworkDto?.Block.Data.Data.To)</MudText>
                 </MudExpansionPanel>
             </MudCardContent>
-            <MudCardActions>
+            <MudCardActions Class="gap-2">
                 @if (_artworkDto?.Owner?.Id == _user?.Id)
                 {
                     <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Image" Color="Color.Primary" OnClick="@OpenTransferModal">Передать произведение искусства</MudButton>
+                }
+                @if (_userIsArbiter)
+                {
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Warning" Color="Color.Warning" OnClick="@OpenArbiterModal">Арбитраж</MudButton>
                 }
             </MudCardActions>
         </MudCard>
@@ -54,6 +58,8 @@
 
     private ApplicationUser _user;
 
+    private bool _userIsArbiter;
+
     private async Task OpenTransferModal()
     {
         var parameters = new DialogParameters<TransferArtworkModal>
@@ -69,10 +75,26 @@
         var result = await (await Dialog.ShowAsync<TransferArtworkModal>("Передача произведения искусства", parameters, options)).Result;
     }
 
+    private async Task OpenArbiterModal()
+    {
+        var parameters = new DialogParameters<ArbiterArtworkModal>
+        {
+            { x => x.Artwork, _artworkDto },
+            { x => x.OnSuccessfulTransfer, UpdateData },
+        };
+        var options = new DialogOptions()
+        {
+            CloseOnEscapeKey = true
+        };
+        
+        var result = await (await Dialog.ShowAsync<ArbiterArtworkModal>("Арбитраж произведения искусства", parameters, options)).Result;
+    }
+
     private async Task UpdateData()
     {
         _artworkDto = await ArtworkService.GetArtworkByHash(ArtworkHash);
         _user = await UserManager.GetAuthenticatedUserAsync();
+        _userIsArbiter = await ArtworkService.IsUserArbiter(_user);
         StateHasChanged();
     }
 

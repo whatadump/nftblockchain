@@ -16,4 +16,6 @@ public interface IArtworkService
     public Task<IReadOnlyCollection<ArtworkDTO>?> GetArtworksByAuthor(string authorId);
 
     public Task<ApplicationUser?> GetAuthorByPublicKeyHash(string authorPublicKey);
+
+    public Task<bool> IsUserArbiter(ApplicationUser user);
 }
