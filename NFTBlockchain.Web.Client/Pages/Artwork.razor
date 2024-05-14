@@ -12,7 +12,9 @@
 <MudGrid>
     <MudItem xs="12" md="3">
         <MudPaper Elevation="10">
-            <MudImage ObjectFit="ObjectFit.Cover" Style="width: 100%; aspect-ratio: 1" Src="@($"/Artworks/{ArtworkHash}.png")"></MudImage>
+            <MudLink Target="_blank" Href="@($"/Artworks/{ArtworkHash}.png")">
+                <MudImage ObjectFit="ObjectFit.Cover" Style="width: 100%; aspect-ratio: 1" Src="@($"/Artworks/{ArtworkHash}.png")"></MudImage>
+            </MudLink>
         </MudPaper>
     </MudItem>
     <MudItem xs="12" md="9">
@@ -22,7 +24,7 @@
                 <MudLink Href="@($"/Author/{HashFunction.GetHash(_artworkDto?.Owner.PublicKey ?? string.Empty)}")">
                     <MudChip Class="mt-4" Variant="Variant.Outlined">@(_artworkDto?.Owner.RealName)</MudChip>
                 </MudLink>
-                <MudExpansionPanel Text="Данные блока">
+                <MudExpansionPanel Style="background: #121212;" Class="mt-3 rounded-3" Text="Данные блока">
                     <MudText Class="d-block" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Nonce: </b> @(_artworkDto?.Block.Data.Nonce)</MudText>
                     <MudText Class="d-block mt-2" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Подпись блока: </b>@(_artworkDto?.Block.Data.Sign)</MudText>
                     <MudText Class="d-block mt-2" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Хэш блока:</b> @(_artworkDto?.Block.Hash)</MudText>
@@ -34,7 +36,7 @@
                     <MudText Class="mt-4" Style="overflow-wrap: break-word;" Typo="Typo.caption"><b>Публичный ключ владельца:</b> @(_artworkDto?.Block.Data.Data.To)</MudText>
                 </MudExpansionPanel>
             </MudCardContent>
-            <MudCardActions Class="gap-2">
+            <MudCardActions Class="gap-2" Style="padding: 16px; padding-top: 0;">
                 @if (_artworkDto?.Owner?.Id == _user?.Id)
                 {
                     <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Image" Color="Color.Primary" OnClick="@OpenTransferModal">Передать произведение искусства</MudButton>

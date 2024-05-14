@@ -9,17 +9,26 @@
     <MudAppBar Elevation="0">
         <MudContainer Class="d-flex flex-row align-items-center column-gap-4">
             <MudLink Typo="Typo.h6" Style="color: white!important; text-decoration: none;" Href="/">NFT Blockchain</MudLink>
-            <MudLink Typo="Typo.body2" Class="fw-medium" Style="color: white!important; text-decoration: none;" Href="/AddArtwork">ДОБАВИТЬ ПРОИЗВЕДЕНИЕ</MudLink>
+            <AuthorizeView>
+                <Authorized>
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                        <MudLink Typo="Typo.body2" Class="fw-medium" Style="color: white!important; text-decoration: none;" Href="/AddArtwork">ДОБАВИТЬ ПРОИЗВЕДЕНИЕ</MudLink>
+                    </MudHidden>
+                </Authorized>
+            </AuthorizeView>
             <MudSpacer/>
             <AuthorizeView>
                 <Authorized>
-                    <MudMenu>
+                    <MudMenu TransformOrigin="Origin.TopCenter">
                         <ActivatorContent>
-                            <MudButton Class="text-white">Аккаунт</MudButton>
+                            <MudButton Style="color: white!important;" Class="text-white">Аккаунт</MudButton>
                         </ActivatorContent>
                         <ChildContent>
-                            <MudLink Href="/Account/Manage"><MudMenuItem>Аккаунт</MudMenuItem></MudLink>
-                            <MudLink Href="/Account/Logout"><MudMenuItem>Выйти</MudMenuItem></MudLink>
+                            <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                                <MudLink Style="color: white!important;" Href="/AddArtwork"><MudMenuItem>Добавить&nbsp;произведение</MudMenuItem></MudLink>
+                            </MudHidden>
+                            <MudLink Style="color: white!important;" Href="/Account/Manage"><MudMenuItem>Аккаунт</MudMenuItem></MudLink>
+                            <MudLink Style="color: white!important;" Href="/Account/Logout"><MudMenuItem>Выйти</MudMenuItem></MudLink>
                         </ChildContent>
                     </MudMenu>
                 </Authorized>
