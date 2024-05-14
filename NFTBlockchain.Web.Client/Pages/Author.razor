@@ -11,7 +11,13 @@
 
 
 <MudToolBar Class="row-gap-4 p-0" WrapContent="true">
-    <h3>Автор @(_author?.RealName)</h3>
+    <MudStack Spacing="1">
+        <h3>Автор @(_author?.RealName)</h3>
+        @if (_artworks is not { Count: > 0 })
+        {
+            <h5>Автор еще не добавил ни одну свою работу</h5>
+        }
+    </MudStack>
     <MudSpacer/>
     @if (RequestedAuthorIsCurrentUser)
     {

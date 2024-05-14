@@ -5,8 +5,14 @@
 @using Size = MudBlazor.Size
 @inject IArtworkService ArtworkService
 
-<h3>Произведения искусства пользователей</h3>
-<MudToolBar>
+<MudToolBar WrapContent="true" Class="p-0 gap-3">
+    <MudStack>
+        <h3>Произведения искусства пользователей</h3>
+            @if (_artworks is not { Count: > 0 })
+            {
+                <MudText Typo="Typo.h6">Никто не добавил свою работу. Будьте первым!</MudText>
+            }
+    </MudStack>
     <MudSpacer/>
     <MudButton Size="Size.Large" Href="/AddArtwork" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined" Color="Color.Primary">Добавить произведение искусства</MudButton>
 </MudToolBar>

@@ -14,7 +14,7 @@
 <MudText Typo="Typo.h4">Добавить произведение искусства</MudText>
 <MudGrid Class="mt-5">
     <MudItem xs="12" md="4">
-        <MudCard>
+        <MudCard Style="padding-bottom: 15px">
             @if (_errorMessage is not null)
             {
                 <MudAlert Severity="Severity.Error">Ошибка: @_errorMessage</MudAlert>
@@ -35,7 +35,7 @@
                     </MudFileUpload>
                     @if (_model.File is not null)
                     {
-                        <MudText Typo="Typo.body2">Выбран файл @_model.File.Name</MudText>
+                        <MudText Class="mt-1" Typo="Typo.body2">Выбран файл @_model.File.Name</MudText>
                     }
                     
                     <MudFileUpload Class="mt-5" T="IBrowserFile" @bind-Files="@_model.PrivateKey" For="@(() => _model.PrivateKey)" Accept=".pem">
@@ -51,11 +51,11 @@
                     </MudFileUpload>
                     @if (_model.PrivateKey is not null)
                     {
-                        <MudText Typo="Typo.body2">Выбран файл ключа @_model.PrivateKey.Name</MudText>
+                        <MudText Class="mt-1" Typo="Typo.body2">Выбран файл ключа @_model.PrivateKey.Name</MudText>
                     }
                 </MudForm>
             </MudCardContent>
-            <MudCardActions>
+            <MudCardActions Style="padding-left: 16px">
                 <MudButton OnClick="@OnSubmit" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Image" Color="Color.Primary">Зарегистрировать</MudButton>
             </MudCardActions>
         </MudCard>

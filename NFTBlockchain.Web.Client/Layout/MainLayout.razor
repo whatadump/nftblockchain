@@ -1,18 +1,15 @@
-﻿@using Color = MudBlazor.Color
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 
-@inject NavigationManager Navigation
-@inject UserManager UserManager
-
-<MudThemingProvider Theme="Theme" IsDarkMode="false" />
+<MudThemingProvider Theme="Theme" IsDarkMode="true" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudContainer Class="d-flex flex-row align-items-center">
+        <MudContainer Class="d-flex flex-row align-items-center column-gap-4">
             <MudLink Typo="Typo.h6" Style="color: white!important; text-decoration: none;" Href="/">NFT Blockchain</MudLink>
+            <MudLink Typo="Typo.body2" Class="fw-medium" Style="color: white!important; text-decoration: none;" Href="/AddArtwork">ДОБАВИТЬ ПРОИЗВЕДЕНИЕ</MudLink>
             <MudSpacer/>
             <AuthorizeView>
                 <Authorized>
@@ -42,7 +39,7 @@
 
 @code {
 
-    public static readonly MudTheme Theme = new()
+    public readonly MudTheme Theme = new()
     {
         Typography = new Typography
         {
@@ -50,7 +47,24 @@
             {
                 FontFamily = ["Inter", "Helvetica", "sans-serif"]
             }
+        },
+        PaletteDark = new()
+        {
+            Primary = new("#689F38"),
+            Secondary = new("#83000D"),
+            Background = new("#151515"),
+            Surface = new("222"),
+            AppbarBackground = new("#151515"),
+            BackgroundGrey = new("#151515"),
+            TextPrimary = new("#fefefe"),
+            TextSecondary = new("#757575"),
+            OverlayDark = new("rgba(0, 0, 0, .9)")
+        },
+        LayoutProperties = new()
+        {
+            DefaultBorderRadius = "10px"
         }
+        
     };
 
 }

@@ -15,15 +15,14 @@
 <h3>Настройки профиля</h3>
 <StatusMessage />
 
-<div class="row">
+<div class="row" data-bs-theme="dark">
     <div class="col-md-6">
         <EditForm Model="@Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
             <div class="mb-3">
                 <label for="username" class="form-label">Имя пользователя</label>
                 <InputText @bind-Value="@Input.Username" class="form-control" id="username"/>
-                <div id="emailHelp" class="form-text">Оно будет отображаться в данных профиля</div>
+                <div id="emailHelp" class="form-text text-white">Оно будет отображаться в данных профиля</div>
             </div>
             <div class="form-floating mb-3">
                 <ValidationMessage For="@(() => Input.Username)" class="text-danger"/>
@@ -73,7 +72,7 @@
     private sealed class InputModel
     {
         [Display(Name = "Имя пользователя")]
-        [StringLength(30, MinimumLength = 2)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "Длина имени пользователя должна быть не менее 2 и не более 30 символов")]
         public string? Username { get; set; }
     }
 }
